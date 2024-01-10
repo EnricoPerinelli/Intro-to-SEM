@@ -1,0 +1,13 @@
+title: Read data set "KFT.dat" in Mplus
+       Check that the data set is read correctly in Mplus
+       using the TYPE = BASIC option
+       Here: Using the Mplus default with FIML estimation
+       including missing data
+
+data: file = KFT.dat;
+
+! This is a comment
+variable: names = kft_v1 kft_v3 kft_q1 kft_q3 kft_n1 kft_n3;
+          missing = all(-99);
+
+analysis: type = basic;

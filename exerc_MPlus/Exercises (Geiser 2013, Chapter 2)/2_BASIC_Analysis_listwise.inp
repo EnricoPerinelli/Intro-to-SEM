@@ -1,0 +1,12 @@
+title: Read data set "KFT.dat" in Mplus
+       Check that the data set is read correctly in Mplus
+       using the TYPE = BASIC option
+       Here: Using listwise deletion of cases
+
+data: file = KFT.dat;
+      listwise = on; ! This command turns FIML estimation off
+
+variable: names = kft_v1 kft_v3 kft_q1 kft_q3 kft_n1 kft_n3;
+          missing = all(-99);
+
+analysis: type = basic;

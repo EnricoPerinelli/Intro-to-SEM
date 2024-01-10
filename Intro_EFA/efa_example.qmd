@@ -1,0 +1,359 @@
+---
+title: "Example of Exploratory Factor Analysis with R"
+author: "Enrico Perinelli   \n_Department of Psychology and Cognitive Science, University of Trento_"
+date: last-modified
+date-format: "[Last Updated on] MMMM DD, YYYY"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-location: left
+    editor: visual
+    code_download: yes # does not work
+---
+
+## Introduction to Exploratory Factor Analysis (EFA)
+
+Exploratory Factor Analysis (EFA) is a statistical technique used to identify underlying factors that explain the observed correlations among a set of variables. It is commonly employed in psychology, sociology, and other social sciences to uncover the latent structure of a set of observed variables.
+
+## Basic Elements of EFA
+
+### Latent Factors and Observed Variables
+
+In EFA, the goal is to identify latent factors that influence the observed variables. The relationship between latent factors (F) and observed variables (X) can be represented by the following equation:
+
+$\mathbf{X}_{i} = \mathbf{\Lambda} \mathbf{F}_{i} + \mathbf{\epsilon}_{i}$
+
+where: $\mathbf{X}$ is the vector of observed variables; $\mathbf{\Lambda}$ is the matrix of factor loadings; $\mathbf{F}$ is the matrix of latent factors; $\mathbf{\epsilon}$ is the matrix of unique factors (error or residual terms).
+
+Notice that the subscript $_i$ indicates casewise scores (i.e., that term may take different values for each observation in the dataset).
+
+If we want to model the covariance between observed variables $x$ (i.e., $\mathbf{\Sigma}$), then the equation is:
+
+$\mathbf{\Sigma} = \mathbf{\Lambda} \mathbf{\Phi} \mathbf{\Lambda}^{'} + \mathbf{\Psi}^{2}$
+
+where $\mathbf{\Phi}$ represents the variance-covariance matrix of the latent factors, and $\mathbf{\Psi}^{2}$ is the residual covariance matrix.
+
+Notice that for **Principal Component Analysis**, the equation is $\mathbf{\Sigma} = \mathbf{\Lambda} \mathbf{\Phi} \mathbf{\Lambda}^{'}$.
+
+Hence,
+
+1.  EFA models the *shared variance* among a set of observed variables,
+
+2.  PCA models the *total variance* among a set of observed variables.
+
+Indeed, with PCA explains 100% of the variance (see below references to `Cumulative Var`) and as a result the lambdas are much higher than those found in EFA.
+
+In conclusion, use PCA only if the aim is data reduction, and thus you believe that no uniqueness variance is necessary (e.g., different socio-economic indicators).
+
+![Source: Matsunga (2010, p. 99)](images/clipboard-211928379.png)
+
+### Factor Loadings
+
+Factor loadings ($\lambda$) represent the strength and direction of the relationship between latent factors and observed variables. They are represented through the arrows pointing from the latent factor to the observed variable. The greater the factor loading, the more influence the latent factor has on the observed variable.
+
+A standardized factor loading can be interpreted as a correlation coefficients between the latent variable and the observed variable.
+
+## Application of EFA to a Big Five open dataset
+
+### Preliminary setings and analysis
+
+Before conducting EFA, it's essential to examine the correlation matrix of the observed variables. This matrix provides insights into the strength and direction of the relationships among variables.
+
+In what follows, we will use the `bfi` dataset included in the `psych` package.
+
+First of all, *load* libraries, *glimpse* dataset, *reverse* items, and *describe* observed variables
+
+```{r}
+#| echo: true
+#| output: false
+
+# Load required libraries
+
+library(psych)
+library(corrplot)
+library(tidyverse)
+```
+
+```{r}
+
+# Load the bfi dataset
+data(bfi)
+
+# Glimpse dataset
+glimpse(bfi)
+```
+
+```{r}
+#| message: false
+
+# Reverse item (see the bfi documentation to understand which are the items to be reversed)
+
+my_bfi <- bfi %>%
+  select(A1:O5) %>% 
+  mutate(A1 = 7 - A1,
+         C4 = 7 - C4,
+         C5 = 7 - C5,
+         E1 = 7 - E1,
+         E2 = 7 - E2,
+         O2 = 7 - O2,
+         O5 = 7 - O5)
+
+# Descriptive statistics
+
+my_bfi %>%
+  psych::describe(.) %>%
+  as.data.frame() %>%
+  select(-vars, -trimmed, -range, -mad) %>%
+  round(., 2) %>%
+  knitr::kable(.)
+
+
+```
+
+```{r fig.width=8, fig.height=8}
+
+# Display the correlation matrix using corrplot
+# To display larger figure:`{r fig.width=8, fig.height=8}`
+
+cor_matrix <- cor(my_bfi, use = "pairwise.complete.obs")
+
+corrplot(
+  cor_matrix,
+  method="shade",
+  addCoef.col="black",
+  type="lower",
+  tl.col="black",
+  number.cex = 0.7
+)
+```
+
+### Preliminary Assessment Indices for Exploratory Factor Analysis
+
+Before running an EFA, we need to inspect three indices that help researchers assess the appropriateness of using Exploratory Factor Analysis on a given dataset:
+
+-   **Kaiser-Meyer-Olkin (KMO) statistic**: According to Kaiser’s (1974) guidelines, a suggested cutoff for determining the factorability of the sample data is $\mathrm{Measure\  of\ Sampling\  Adequacy\  (MSA)} ≥ 60$.
+
+-   **Bartlett's test of sphericity**: Bartlett's test evaluates whether the correlation matrix of the variables is significantly different from the identity matrix, indicating whether there is sufficient correlation among variables to proceed with factor analysis. A significant result (e.g., $p < .05$) in Bartlett's test suggests that the variables are not uncorrelated, supporting the use of factor analysis. It complements the KMO statistic by providing additional evidence of the adequacy of the data for factor analysis.
+
+-   **Determinant**: The determinant of the correlation matrix is examined to ensure that it is not close to zero. A very small determinant implies multicollinearity among variables, which can complicate factor analysis results.A determinant close to zero indicates that the variables are highly correlated, potentially causing numerical instability in factor analysis. A determinant significantly different from zero is desirable for a stable factor solution.
+
+```{r}
+# KMO (Measure of Sampling Adequacy (MSA))
+
+KMO(
+  r = cor(
+    my_bfi,
+    use = "pairwise.complete.obs"
+    )
+  )
+```
+
+```{r}
+# Bartlett's test of sphericity
+
+cortest.bartlett(my_bfi)
+```
+
+```{r}
+# Determinant
+
+det(
+  cor(
+    my_bfi,
+    use = "pairwise.complete.obs")
+)
+
+```
+
+Ok, all preliminary indices are good. Hence, we can go on with the next steps of EFA.
+
+## Perform Parallel Analysis
+
+The first question is: *How many factors should we retain?*
+
+In this case, we know that Big Five should be... five. However, what if we want to empirically proof that a group of observed variables can be summarized into $n$ hypothesized factors?
+
+Parallel analysis may help us!
+
+Parallel analysis is a statistical technique used to determine the number of factors to retain in EFA (or in PCA).
+
+The goal of parallel analysis is to identify the meaningful latent factors that explain the underlying structure of a set of observed variables.
+
+In factor analysis, **eigenvalues** indicate the variance explained by each factor (in more detail, the proportion of variance explained by a factor $F$ can be calculate by dividing the eigenvalue of the factor $F$ by the sum of all the eigenvalues).
+
+Parallel analysis involves generating random datasets (with the same number of variables and observations as the original dataset) and extracting their eigenvalues.
+
+**The idea is to compare the eigenvalues obtained from the actual data with those obtained from random data.**
+
+-   Factors with eigenvalues from the actual data that are larger than the corresponding eigenvalues from random data are considered meaningful and retained.
+
+-   Factors with eigenvalues close to or less than the eigenvalues from random data are considered spurious and may not represent meaningful latent factors. Number of Factors:
+
+The number of retained factors corresponds to the point where the eigenvalues from the actual data surpass the average eigenvalues from the random data. Factors beyond this point are likely to be noise or chance factors.
+
+```{r}
+parallel_analysis <- fa.parallel(cor_matrix, fa="fa")
+```
+
+Very well: Parallel analysis supports that - as hypothesized - we should extract 5 factors from this dataset.
+
+## Perform EFA with oblique rotation (Promax)
+
+The two main functions to perform EFA are `psych::fa` and `stats::factanal`.
+
+We use an oblique rotation (instead of an orthogonal rotation, like `varimax`) since, in most of cases, psychological factors (i.e., constructs) are correlated.
+
+```{r}
+efa_result <- fa(
+  cor_matrix,
+  nfactors = parallel_analysis$nfact,
+  rotate = "promax"
+  )
+
+efa_result
+```
+
+This model explains 41% of the total variance (see the last column of `Cumulative Var`).
+
+But what MR means? It just means "minimum residual", but as psychologists we should provide a name for each factor.
+
+Start by considering only $\lambda s > .30$.
+
+```{r}
+fact_bfi <- factanal(
+  na.omit(my_bfi),
+  factors = parallel_analysis$nfact, # 5
+  rotation = "promax"
+) 
+
+
+fact_bfi %>%
+  print(
+    cutoff = 0.3, digits = 2
+    )
+```
+
+Very clear solutions! Indeed, all hypothesized lambdas are large, and there are few cross-loadings.
+
+Now we can change the names of the factors with the hypothesized constructs.
+
+```{r}
+#| echo: true
+#| output: false
+
+fact_bfi$loadings %>%
+  print(cutoff = 0.3,
+        digits=2) %>% 
+  as.data.frame()
+```
+
+```{r}
+colnames(fact_bfi$loadings) <- c(
+  "Neuroticism",
+  "Extraversion",
+  "Conscientiousness",
+  "Agreeableness",
+  "Openness"
+)
+
+fact_bfi$loadings %>%
+  print(
+    cutoff = 0.3,
+    digits = 2
+  )
+
+```
+
+And now, print the model for a visual representation of the results:
+
+```{r fig.width=8, fig.height=8}
+fa.diagram(
+  fact_bfi$loadings,
+  errors = TRUE,
+  digits = 2
+  )
+```
+
+## Compute reliability indices
+
+After running our EFA, we can compute reliability indices.
+
+Recall that Hence, **reliability** is the ratio between the true score variance $Var(T)$ vs the total score score variance $Var(X)$, with the latter consisting of $Var(T)+Var(E)$:
+
+$\rho_{xx}=\frac{Var(T)}{Var(T)+Var(E)}$
+
+We have several indexes of reliability.
+
+The two most used are:
+
+-   **Cronbach's alpha** $\alpha = \frac{k}{k-1}\left(1 - \frac{\sum_{i=1}^{k}\sigma_{Y_{i}}^{2}}{\sigma_{X}^{2}}\right)$\
+    where $k$ is the number of items, $\sigma _{X}^{2}$ is the variance of the total score, and $\sigma_{Y_{i}}^{2}$ is the variance of item $i$ in the sample.
+-   **Omega Total** $\omega_{total} = \frac{(\sum_{i=1}^{k}\lambda_i)^2}{(\sum_{i=1}^{k}\lambda_i)^2 + \sum_{i=1}^{k}\Theta_{ii}}$\
+    where $\lambda_i$ is the factor loading of the component $i$, while $\Theta_{ii}$ is the residual variance of the component $i$
+
+```{r}
+#| output: false
+
+# Store items in a list
+
+composite_scores <- list(
+  Agreeableness     = c("A1", "A2", "A3", "A4", "A5"),
+  Conscientiousness = c("C1", "C2", "C3", "C4", "C5"),
+  Extraversion      = c("E1", "E2", "E3", "E4", "E5"),
+  Neuroticism       = c("N1", "N2", "N3", "N4", "N5"),
+  Openness          = c("O1", "O2", "O3", "O4", "O5")
+)
+
+# Create a function to extract Cronbach's alpha
+
+my_alpha <- function(data, items) {
+  data %>% 
+    select(all_of(items)) %>% 
+    psych::alpha() %>% 
+    pluck(., "total", "raw_alpha") %>%
+    round(., 2) %>% 
+    print()
+}
+
+# Calculate Cronbach's alpha for all dimensions 
+
+all_alpha <- purrr::map(composite_scores, ~ my_alpha(my_bfi, .)) %>% as.data.frame()
+```
+
+```{r}
+#| message: false
+#| warning: false
+#| output: false
+
+# Create a function to extract Omega total
+
+my_omega <- function(data, items) {
+  data %>% 
+    select(all_of(items)) %>% 
+    psych::omega(., nfactors = 1) %>% 
+    pluck(., "omega.tot") %>%
+    round(., 2) %>% 
+    print()
+}
+
+# Calculate Omega total for all dimensions 
+
+all_omega <- purrr::map(composite_scores, ~ my_omega(my_bfi, .)) %>% as.data.frame()
+```
+
+```{r}
+rbind(
+  all_alpha,
+  all_omega
+) %>% 
+  t() %>%
+  as.data.frame() %>%
+  knitr::kable(
+    .,
+    "simple",
+    col.names = c(
+      "Trait", "Cronbach's $\\alpha$", "$\\omega$ total"
+      ),
+    align = c("l", "c", "c"))
+```

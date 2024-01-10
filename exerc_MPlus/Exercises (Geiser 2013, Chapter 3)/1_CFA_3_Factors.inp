@@ -1,0 +1,14 @@
+title: CFA for the six KFT variables
+       3-Factor model (see Figure 3.8)
+
+data: file = KFT.dat;
+      listwise = on;
+
+variable: names = kft_v1 kft_v3 kft_q1 kft_q3 kft_n1 kft_n3;
+          missing = all(-99);
+
+analysis: type = general;
+
+model: 
+
+output: sampstat stdyx tech4;

@@ -1,0 +1,33 @@
+title: Latent path model shown in Figure 3.15
+       Relationship between physical health, functional health, and subjective health
+       
+       
+data: file = health.dat;
+
+variable: names = SHP ! Subjektive health in the present
+                  SHC ! Changes in subjective health across the past 6 years
+                  SICK ! Number of health issues in the past 12 months
+                  CONSULT ! Number of physician consultations in the past 12 months
+                  FH ! Total score SF-36 scale on functional health 
+                  FH1 FH2; ! SF-36 scale split into 2 test halves/item parcels 
+          
+          usevar = SHP SHC SICK CONSULT FH1 FH2;
+
+analysis: type = general;
+
+
+model: SH by SHP SHC; ! Factor/Measurement model subjective health
+       PH by SICK CONSULT; ! Factor/Measurement model physical health
+       FH by FH1 FH2; ! Factor/Measurement model functional health
+
+! Path analysis at the level of the latent variables
+       FH on PH; 
+       SH on PH FH; 
+ 
+       model indirect: SH ind PH; ! Request output of direct, indirect, and total effects
+
+output: sampstat stdyx
+        
+
+
+
