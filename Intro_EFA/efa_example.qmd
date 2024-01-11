@@ -52,7 +52,7 @@ In conclusion, use PCA only if the aim is data reduction, and thus you believe t
 
 Factor loadings ($\lambda$) represent the strength and direction of the relationship between latent factors and observed variables. They are represented through the arrows pointing from the latent factor to the observed variable. The greater the factor loading, the more influence the latent factor has on the observed variable.
 
-A standardized factor loading can be interpreted as a correlation coefficients between the latent variable and the observed variable.
+A standardized factor loading can be interpreted as a correlation coefficient between the latent variable and the observed variable.
 
 ## Application of EFA to a Big Five open dataset
 
