@@ -49,4 +49,4 @@ Read more: [https://creativecommons.org/licenses/by-nc-sa/4.0/](https://creative
 - 2021-2022 - February 10, 11, 24, 25, 2022 (12h)
 - 2020-2021 - March 5, 12, 17, 26, 2021 (12h)
 - 2019-2020 - June 12, 18, 23, 25, 2020 (12h)
-- 2018-2019 - June 25, July 2, 2019 (6h)}
+- 2018-2019 - June 25, July 2, 2019 (6h)

@@ -25,11 +25,12 @@
 
 rm(list = ls())    # clean your environment (or use a specific R project)
 
-install.packages(c("lavaan",
-                   "psych",
-                   "dplyr",
-                   "semPlot"),
-                 dependencies = T) # just once
+install.packages(c(
+  "lavaan",
+  "psych",
+  "dplyr",
+  "semPlot"),
+  dependencies = T) # just once
 
 library(lavaan)  # load lavaan
 library(psych)   # package useful for the "describe" function
@@ -61,24 +62,29 @@ HS.model <- ' visual  =~ x1 + x2 + x3
 
 ## Step 2: Model Estimation -----------------------------------------------
 
-fit <- cfa(HS.model,
-           data = HolzingerSwineford1939)
+fit <- cfa(
+  HS.model,
+  data = HolzingerSwineford1939
+)
 
 
 ## Step 3: Display output -------------------------------------------------
 
-summary(fit,
-        fit.measures = TRUE,
-        rsquare=TRUE,
-        standardized = TRUE) # remember that standardized parameters
-                             #   are under `Std.all` column
+summary(
+  fit,
+  fit.measures = TRUE,
+  rsquare=TRUE,
+  standardized = TRUE) # remember that standardized parameters
+                       #   are under `Std.all` column
 
 
 ## Step 4 (optional): Visualize Modification Indices ----------------------
 
-modindices(fit,
-           sort = TRUE,
-           maximum.number = 5)
+modindices(
+  fit,
+  sort = TRUE,
+  maximum.number = 5
+)
 
 
 ## Step 5 (optional): Visualize your SEM ----------------------------------
@@ -86,11 +92,12 @@ modindices(fit,
 # For a paper, I suggest to do it on your own in Power Point, in particular
 #  if the model is particularly complex
 
-semPaths(fit,
-         whatLabels = "std",
-         sizeLat = 10,
-         nCharNodes = 7)
-
+semPaths(
+  fit,
+  whatLabels = "std",
+  sizeLat = 10,
+  nCharNodes = 7
+)
 
 
 
@@ -128,32 +135,39 @@ model_sem <- '
 
 ## Step 2: Model Estimation -----------------------------------------------
 
-fit_sem <- sem(model_sem,
-               data = PoliticalDemocracy)
+fit_sem <- sem(
+  model_sem,
+  data = PoliticalDemocracy
+)
 
 
 ## Step 3: Display output -------------------------------------------------
 
-summary(fit_sem,
-        fit.measures = TRUE,
-        rsquare=TRUE,
-        standardized = TRUE) # remember that standardized parameters
-                             #   are under `Std.all` column
+summary(
+  fit_sem,
+  fit.measures = TRUE,
+  rsquare=TRUE,
+  standardized = TRUE) # remember that standardized parameters
+                       #   are under `Std.all` column
 
 
 ## Step 4 (optional): Visualize Modification Indices ----------------------
 
-modindices(fit_sem,
-           sort = TRUE,
-           maximum.number = 5)
+modindices(
+  fit_sem,
+  sort = TRUE,
+  maximum.number = 5
+)
 
 
 ## Step 5 (optional): Visualize your SEM ----------------------------------
 
-semPaths(fit_sem,
-         whatLabels = "std",
-         sizeLat = 10,
-         nCharNodes = 7)
+semPaths(
+  fit_sem,
+  whatLabels = "std",
+  sizeLat = 10,
+  nCharNodes = 7
+)
 
 
 # Save Workspace ----------------------------------------------------------
